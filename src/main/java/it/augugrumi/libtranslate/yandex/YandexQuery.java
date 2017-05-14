@@ -1,7 +1,12 @@
 package it.augugrumi.libtranslate.yandex;
 
+import com.github.vbauer.yta.model.Direction;
+import com.github.vbauer.yta.model.Translation;
+import com.github.vbauer.yta.service.YTranslateApi;
+import com.github.vbauer.yta.service.YTranslateApiImpl;
 import it.augugrumi.libtranslate.conctract.ITranslationQuery;
 import it.augugrumi.libtranslate.conctract.ITranslationResult;
+import it.augugrumi.libtranslate.conctract.Language;
 import it.augugrumi.libtranslate.util.TranslateKeyStore;
 
 /**
@@ -9,13 +14,13 @@ import it.augugrumi.libtranslate.util.TranslateKeyStore;
  */
 public class YandexQuery implements ITranslationQuery {
 
-    private String from = null;
-    private String to = null;
+    private Language from = null;
+    private Language to = null;
     private String textToTranslate = null;
 
     private YandexQuery (
-            String from,
-            String to,
+            Language from,
+            Language to,
             String textToTranslate
     ) {
         this.from = from;
@@ -27,26 +32,40 @@ public class YandexQuery implements ITranslationQuery {
     public ITranslationResult runQuery() {
 
         String key = TranslateKeyStore.getIstance().retrieveYandexKey();
+        YTranslateApi yandexApi = new YTranslateApiImpl(key);
+        com.github.vbauer.yta.model.Language adaptedFrom = YandexLangConverter.getConverter().get(from).convert();
+        com.github.vbauer.yta.model.Language adaptedTo = YandexLangConverter.getConverter().get(to).convert();
+
+        Translation translation = yandexApi.translationApi()
+                .translate(
+                        textToTranslate,
+                        Direction.of(adaptedFrom, adaptedTo)
+                );
+
+        YandexResult res = new YandexResult
+                .Builder()
+                .withTranslation(translation.text())
+                .build();
 
         // TODO call the original library and do the query!
-        return null;
+        return res;
     }
 
     public static class Builder implements ITranslationQuery.Builder {
 
-        private String from = null;
-        private String to = null;
+        private Language from = null;
+        private Language to = null;
         private String textToTranslate = null;
 
         @Override
-        public Builder from(String from) {
+        public Builder from(Language from) {
 
             this.from = from;
             return this;
         }
 
         @Override
-        public Builder to(String to) {
+        public Builder to(Language to) {
 
             this.to = to;
             return this;

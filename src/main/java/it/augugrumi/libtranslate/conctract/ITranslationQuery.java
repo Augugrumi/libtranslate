@@ -9,8 +9,8 @@ public interface ITranslationQuery {
 
     interface Builder {
 
-        Builder from(String from);
-        Builder to(String to);
+        Builder from(Language from);
+        Builder to(Language to);
         Builder withText(String textToTranslate);
 
         ITranslationQuery build();
