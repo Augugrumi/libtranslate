@@ -26,7 +26,7 @@ public class TranslateKeyStore {
     }
 
 
-    public static synchronized TranslateKeyStore getIstance () {
+    public static synchronized TranslateKeyStore getInstance() {
 
         if (singleton == null) {
             singleton = new TranslateKeyStore();
