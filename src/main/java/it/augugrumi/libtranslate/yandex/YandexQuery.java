@@ -32,15 +32,25 @@ public class YandexQuery implements ITranslationQuery {
     public ITranslationResult runQuery() {
 
         String key = TranslateKeyStore.getIstance().retrieveYandexKey();
+        Translation translation;
         YTranslateApi yandexApi = new YTranslateApiImpl(key);
-        com.github.vbauer.yta.model.Language adaptedFrom = YandexLangConverter.getConverter().get(from).convert();
-        com.github.vbauer.yta.model.Language adaptedTo = YandexLangConverter.getConverter().get(to).convert();
-
-        Translation translation = yandexApi.translationApi()
-                .translate(
-                        textToTranslate,
-                        Direction.of(adaptedFrom, adaptedTo)
-                );
+        com.github.vbauer.yta.model.Language adaptedTo =
+                YandexLangConverter.getConverter().get(to).convert();
+        if (from != null) {
+            com.github.vbauer.yta.model.Language adaptedFrom =
+                    YandexLangConverter.getConverter().get(from).convert();
+            translation = yandexApi.translationApi()
+                    .translate(
+                            textToTranslate,
+                            Direction.of(adaptedFrom, adaptedTo)
+                    );
+        } else {
+            translation = yandexApi.translationApi()
+                    .translate(
+                            textToTranslate,
+                            adaptedTo
+                    );
+        }
 
         YandexResult res = new YandexResult
                 .Builder()
